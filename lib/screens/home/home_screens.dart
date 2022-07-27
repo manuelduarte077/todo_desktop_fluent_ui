@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:todo_desktop/model/models.dart';
 import 'package:todo_desktop/widgets/widgets.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return NavigationView(
       appBar: navAppBar(),
       pane: _navigationPane(),
-      content: WidgetNavigationBody(selectIndex: selectIndex),
+      content: _navigationBody(selectIndex: selectIndex),
     );
   }
 
@@ -40,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
           title: const Text('List Todo'),
           infoBadge: InfoBadge(
             color: Colors.blue,
-            source: const Text('10'),
+            source: Text(Todo.todoList.length.toString()),
           ),
         ),
       ],
@@ -53,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-// AppBar
+  // AppBar
   NavigationAppBar navAppBar() {
     return NavigationAppBar(
       title: const Padding(
@@ -67,63 +68,117 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       automaticallyImplyLeading: false,
-      actions: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          children: [
-            const Spacer(),
-            Align(
-              alignment: Alignment.centerRight,
-              child: OutlinedButton(
-                child: const Text('Create Tood'),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const AddEditTodoContent();
-                    },
-                  );
-                },
-              ),
+      actions: Row(
+        children: [
+          const Spacer(),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton(
+              child: const Text('Create Tood'),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AddEditTodoContent(
+                      onCreated: () {
+                        setState(() {});
+                      },
+                    );
+                  },
+                );
+              },
             ),
-            const SizedBox(
-              width: 20,
-            )
-          ],
-        ),
+          ),
+          const SizedBox(
+            width: 20,
+          )
+        ],
       ),
     );
   }
-}
 
-class WidgetNavigationBody extends StatelessWidget {
-  const WidgetNavigationBody({
-    Key? key,
-    required this.selectIndex,
-  }) : super(key: key);
-
-  final int selectIndex;
-
-  @override
-  Widget build(BuildContext context) {
-    return NavigationBody(
-      index: selectIndex,
-      children: [
-        Container(
-          child: Column(
-            children: const [
-              Center(
-                child: Text('TODO List'),
-              ),
-            ],
+  MediaQuery _navigationBody({
+    required int selectIndex,
+  }) {
+    return MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: NavigationBody(
+        index: selectIndex,
+        children: [
+          ListView.builder(
+            itemCount: Todo.todoList.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Card(
+                  child: GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AddEditTodoContent(
+                            todo: Todo.todoList[index],
+                            onUpdated: () {
+                              setState(() {});
+                            },
+                          );
+                        },
+                      );
+                    },
+                    child: ListTile(
+                      leading: const Icon(FluentIcons.task_group),
+                      title: Text(Todo.todoList[index].title),
+                      subtitle: Text(Todo.todoList[index].description),
+                      trailing: IconButton(
+                        icon: const Icon(FluentIcons.delete),
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return ContentDialog(
+                                  title: const Text('Deltete Todo'),
+                                  content: const Text(
+                                    'Are you sure want to delete this todo?',
+                                  ),
+                                  actions: [
+                                    FilledButton(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: const [
+                                          Icon(FluentIcons.delete),
+                                          SizedBox(
+                                            width: 8,
+                                          ),
+                                          Text('Delete'),
+                                        ],
+                                      ),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    )
+                                  ],
+                                );
+                              }).then((value) {
+                            setState(() {});
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
-        ),
-        Container(
-          child: const Center(
-            child: Text('Settings'),
+          Container(
+            child: const Center(
+              child: Text('Settings'),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
