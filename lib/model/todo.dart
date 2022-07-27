@@ -3,6 +3,8 @@ class Todo {
   String _description;
   bool _isFinished;
 
+  static List<Todo> todoList = [];
+
   Todo({
     required String title,
     required String description,
