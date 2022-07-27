@@ -1,4 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:todo_desktop/widgets/widgets.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -71,9 +72,19 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           children: [
             const Spacer(),
-            OutlinedButton(
-              child: const Text('Create Tood'),
-              onPressed: () {},
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton(
+                child: const Text('Create Tood'),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return const AddEditTodoContent();
+                    },
+                  );
+                },
+              ),
             ),
             const SizedBox(
               width: 20,
@@ -99,8 +110,12 @@ class WidgetNavigationBody extends StatelessWidget {
       index: selectIndex,
       children: [
         Container(
-          child: const Center(
-            child: Text('TODO List'),
+          child: Column(
+            children: const [
+              Center(
+                child: Text('TODO List'),
+              ),
+            ],
           ),
         ),
         Container(
