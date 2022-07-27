@@ -1,5 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:todo_desktop/screens/home/home_screens.dart';
+import 'package:todo_desktop/screens/todo/todo_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -7,7 +7,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const FluentApp(
-      home: HomeScreen(),
+      home: TodoScreen(),
     );
   }
 }
