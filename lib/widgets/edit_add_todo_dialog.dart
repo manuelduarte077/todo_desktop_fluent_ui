@@ -1,5 +1,8 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:todo_desktop/model/models.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_desktop/database/database.dart';
+
+import 'package:drift/drift.dart' as d;
 
 class AddEditTodoContent extends StatefulWidget {
   const AddEditTodoContent({
@@ -12,7 +15,7 @@ class AddEditTodoContent extends StatefulWidget {
   final Function? onCreated;
   final Function? onUpdated;
 
-  final Todo? todo;
+  final TodoData? todo;
 
   @override
   State<AddEditTodoContent> createState() => _AddEditTodoContentState();
@@ -30,9 +33,9 @@ class _AddEditTodoContentState extends State<AddEditTodoContent> {
     descriptionController = TextEditingController();
 
     if (widget.todo != null) {
-      descriptionController.text = widget.todo!.description;
-      titleContoller.text = widget.todo!.title;
-      isFinished = widget.todo!.isFinished;
+      // descriptionController.text = widget.todo!.description;
+      // titleContoller.text = widget.todo!.title;
+      // isFinished = widget.todo!.isFinished;
     }
 
     super.initState();
@@ -98,13 +101,13 @@ class _AddEditTodoContentState extends State<AddEditTodoContent> {
                 String title = titleContoller.text;
                 String desc = descriptionController.text;
 
-                int index = Todo.todoList.indexOf(widget.todo!);
+                // int index = Todo.todoList.indexOf(widget.todo!);
 
-                Todo.todoList[index] = Todo(
-                  title: title,
-                  description: desc,
-                  isFinished: isFinished,
-                );
+                // Todo.todoList[index] = Todo(
+                //   title: title,
+                //   description: desc,
+                //   isFinished: isFinished,
+                // );
 
                 widget.onUpdated!();
                 Navigator.of(context).pop();
@@ -125,11 +128,16 @@ class _AddEditTodoContentState extends State<AddEditTodoContent> {
               onPressed: () {
                 String title = titleContoller.text;
                 String desc = descriptionController.text;
-                Todo.todoList.add(
-                  Todo(title: title, description: desc, isFinished: isFinished),
+
+                Provider.of<AppDatabase>(context, listen: false).insertTodo(
+                  TodoCompanion(
+                    title: d.Value(title),
+                    description: d.Value(desc),
+                    isFinished: d.Value(isFinished),
+                  ),
                 );
+
                 widget.onCreated!();
-                Navigator.of(context).pop();
               },
             )
           ],
