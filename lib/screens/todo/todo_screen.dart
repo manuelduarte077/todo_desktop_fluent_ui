@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_desktop/database/database.dart';
 
-import 'package:todo_desktop/model/models.dart';
 import 'package:todo_desktop/widgets/widgets.dart';
 
 class TodoScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class _TodoScreenState extends State<TodoScreen> {
           title: const Text('List Todo'),
           infoBadge: InfoBadge(
             color: Colors.blue,
-            source: Text(Todo.todoList.length.toString()),
+            // source: Text(Todo.todoList.length.toString()),
           ),
         ),
       ],
@@ -119,81 +120,82 @@ class _TodoScreenState extends State<TodoScreen> {
   }
 
   _getListTodo() {
-    if (Todo.todoList.isNotEmpty) {
-      return ListView.builder(
-        itemCount: Todo.todoList.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Card(
-              child: GestureDetector(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AddEditTodoContent(
-                        todo: Todo.todoList[index],
-                        onUpdated: () {
-                          setState(() {});
+    return FutureBuilder<List<TodoData>>(
+      future: Provider.of<AppDatabase>(context, listen: false).getAllTodo(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Card(
+                  child: GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AddEditTodoContent(
+                            todo: snapshot.data![index],
+                            onUpdated: () {
+                              setState(() {});
+                            },
+                          );
                         },
                       );
                     },
-                  );
-                },
-                child: ListTile(
-                  leading: const Icon(FluentIcons.task_group),
-                  title: Text(Todo.todoList[index].title),
-                  subtitle: Text(Todo.todoList[index].description),
-                  trailing: IconButton(
-                    icon: const Icon(FluentIcons.delete),
-                    onPressed: () {
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return ContentDialog(
-                              title: const Text('Deltete Todo'),
-                              content: const Text(
-                                'Are you sure want to delete this todo?',
-                              ),
-                              actions: [
-                                FilledButton(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      Icon(FluentIcons.delete),
-                                      SizedBox(
-                                        width: 8,
-                                      ),
-                                      Text('Delete'),
-                                    ],
+                    child: ListTile(
+                      leading: const Icon(FluentIcons.task_group),
+                      title: Text(snapshot.data![index].title),
+                      subtitle: Text(snapshot.data![index].description),
+                      trailing: IconButton(
+                        icon: const Icon(FluentIcons.delete),
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return ContentDialog(
+                                  title: const Text('Deltete Todo'),
+                                  content: const Text(
+                                    'Are you sure want to delete this todo?',
                                   ),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                )
-                              ],
-                            );
-                          }).then((value) {
-                        setState(() {});
-                      });
-                    },
+                                  actions: [
+                                    FilledButton(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: const [
+                                          Icon(FluentIcons.delete),
+                                          SizedBox(
+                                            width: 8,
+                                          ),
+                                          Text('Delete'),
+                                        ],
+                                      ),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    )
+                                  ],
+                                );
+                              }).then((value) {
+                            setState(() {});
+                          });
+                        },
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           );
-        },
-      );
-    } else {
-      return const Center(
-        child: Text(
-          'Empty',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      );
-    }
+        }
+
+        return const Center(
+          child: ProgressRing(),
+        );
+      },
+    );
   }
 }
